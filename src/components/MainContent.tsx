@@ -641,7 +641,7 @@ const GAME_HEADERS: Record<string, string> = {
   'Valorant':           'https://upload.wikimedia.org/wikipedia/en/b/ba/Valorant_cover.jpg',
   'World of Warcraft':  'https://upload.wikimedia.org/wikipedia/en/6/65/World_of_Warcraft.png',
   'League of Legends':  'https://upload.wikimedia.org/wikipedia/en/1/13/League_of_Legends.jpg',
-  'Fortnite':           'https://upload.wikimedia.org/wikipedia/en/thumb/9/93/Fortnite_Battle_Royale_Season_8_cover_art.jpg/250px-Fortnite_Battle_Royale_Season_8_cover_art.jpg',
+  'Fortnite':           'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0e/FortniteLogo.svg/250px-FortniteLogo.svg.png',
   'Overwatch 2':        'https://upload.wikimedia.org/wikipedia/en/a/a5/Overwatch_2_cover_art.jpg',
   'Escape from Tarkov': 'https://upload.wikimedia.org/wikipedia/en/f/f8/Escape_from_Tarkov_cover_art.jpg',
 }
