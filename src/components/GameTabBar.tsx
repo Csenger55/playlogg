@@ -1,15 +1,17 @@
 import { Plus } from 'lucide-react'
-import { gameTabs } from '../data/mockData'
+import type { GameTab } from '../types'
 
 interface GameTabBarProps {
   activeGame: string
   onSelect: (id: string) => void
+  tabs: GameTab[]
+  onAdd?: () => void
 }
 
-export function GameTabBar({ activeGame, onSelect }: GameTabBarProps) {
+export function GameTabBar({ activeGame, onSelect, tabs, onAdd }: GameTabBarProps) {
   return (
     <div className="flex items-center gap-3 no-scrollbar overflow-x-auto pb-1">
-      {gameTabs.map((tab) => {
+      {tabs.map((tab) => {
         const isActive = tab.id === activeGame
         return (
           <button
@@ -22,7 +24,7 @@ export function GameTabBar({ activeGame, onSelect }: GameTabBarProps) {
                 ? `0 0 0 2px ${tab.color}, 0 0 16px ${tab.color}55`
                 : `0 0 0 1px ${tab.color}33`,
             }}
-            title={tab.id.toUpperCase()}
+            title={tab.id}
           >
             {tab.label}
           </button>
@@ -31,6 +33,7 @@ export function GameTabBar({ activeGame, onSelect }: GameTabBarProps) {
 
       {/* Add button */}
       <button
+        onClick={onAdd}
         className="flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center transition-colors duration-150"
         style={{
           background: '#141419',

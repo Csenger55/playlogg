@@ -4,11 +4,12 @@ import { GameTabBar } from './GameTabBar'
 import { PostCard } from './PostCard'
 import { StatsPanel } from './StatsPanel'
 import { ActivityFeed } from './ActivityFeed'
-import { posts } from '../data/mockData'
+import { posts, gameTabs as initialGameTabs } from '../data/mockData'
+import type { GameTab } from '../types'
 import {
   BarChart2, Trophy, Target, Crosshair, Shield, Zap,
-  Newspaper, Clock, ExternalLink, User, Edit3, Award,
-  Gamepad2, Plus, Star, TrendingUp
+  Newspaper, Clock, ExternalLink, User, Edit3,
+  Gamepad2, Plus, Star, TrendingUp, X
 } from 'lucide-react'
 
 interface MainContentProps {
@@ -16,25 +17,211 @@ interface MainContentProps {
 }
 
 /* ─────────────────────────────────────────────
-   KEZDŐOLDAL
+   ÚJ CSOPORT MODAL
 ───────────────────────────────────────────── */
-function HomeTab() {
-  const [activeGame, setActiveGame] = useState('cs2')
+const GROUP_COLORS = [
+  { label: 'Narancs', color: '#ff6b00', bgFrom: '#cc4400', bgTo: '#7a2800' },
+  { label: 'Sárga',   color: '#f59e0b', bgFrom: '#cc8800', bgTo: '#7a5000' },
+  { label: 'Piros',   color: '#ef4444', bgFrom: '#cc2222', bgTo: '#7a1010' },
+  { label: 'Kék',     color: '#3b82f6', bgFrom: '#2266cc', bgTo: '#113388' },
+  { label: 'Lila',    color: '#a855f7', bgFrom: '#7733cc', bgTo: '#441188' },
+  { label: 'Zöld',    color: '#22c55e', bgFrom: '#189944', bgTo: '#0a5528' },
+  { label: 'Cián',    color: '#06b6d4', bgFrom: '#0588aa', bgTo: '#034466' },
+  { label: 'Rózsaszín', color: '#ec4899', bgFrom: '#bb2277', bgTo: '#771144' },
+]
+
+function AddGroupModal({ onClose, onAdd }: { onClose: () => void; onAdd: (tab: GameTab) => void }) {
+  const [name, setName]       = useState('')
+  const [label, setLabel]     = useState('')
+  const [colorIdx, setColorIdx] = useState(0)
+
+  const chosen = GROUP_COLORS[colorIdx]
+  const previewLabel = label.trim() || (name.trim().slice(0, 3).toUpperCase()) || '??'
+
+  const handleSave = () => {
+    if (!name.trim()) return
+    onAdd({
+      id: Date.now().toString(),
+      label: previewLabel,
+      color: chosen.color,
+      bgFrom: chosen.bgFrom,
+      bgTo: chosen.bgTo,
+    })
+    onClose()
+  }
+
   return (
-    <div className="space-y-6">
-      <GameTabBar activeGame={activeGame} onSelect={setActiveGame} />
-      <div className="grid gap-4" style={{ gridTemplateColumns: '1fr 1fr 300px' }}>
-        <div className="col-span-2 space-y-4">
-          {posts.map((post) => (
-            <PostCard key={post.id} post={post} />
-          ))}
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center"
+      style={{ background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(6px)' }}
+      onClick={onClose}
+    >
+      <div
+        className="w-[400px] rounded-2xl p-6 space-y-5"
+        style={{ background: '#141419', border: '1px solid #282835', boxShadow: '0 24px 64px rgba(0,0,0,0.7)' }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <span className="text-[15px] font-bold" style={{ color: '#eaeaf2' }}>Új csoport létrehozása</span>
+          <button
+            className="w-7 h-7 rounded-lg flex items-center justify-center transition-colors"
+            style={{ background: '#1e1e2a', color: '#56566e' }}
+            onClick={onClose}
+          >
+            <X size={14} />
+          </button>
         </div>
-        <div className="space-y-4">
-          <StatsPanel />
-          <ActivityFeed />
+
+        {/* Preview */}
+        <div className="flex items-center gap-4">
+          <div
+            className="w-14 h-14 rounded-full flex items-center justify-center text-[13px] font-black text-white flex-shrink-0"
+            style={{
+              background: `radial-gradient(circle at 38% 32%, ${chosen.bgFrom}, ${chosen.bgTo})`,
+              boxShadow: `0 0 0 2px ${chosen.color}, 0 0 16px ${chosen.color}55`,
+            }}
+          >
+            {previewLabel}
+          </div>
+          <div>
+            <p className="text-[13px] font-semibold" style={{ color: '#eaeaf2' }}>
+              {name.trim() || 'Csoport neve'}
+            </p>
+            <p className="text-[11px] mt-0.5" style={{ color: '#56566e' }}>Előnézet</p>
+          </div>
+        </div>
+
+        {/* Name */}
+        <div className="space-y-1.5">
+          <label className="text-[11px] font-medium uppercase tracking-wider" style={{ color: '#56566e' }}>
+            Csoport neve
+          </label>
+          <input
+            autoFocus
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="pl. Counter-Strike 2"
+            className="w-full rounded-lg px-3 py-2 text-[13px] outline-none"
+            style={{
+              background: '#1e1e2a', border: '1px solid #282835',
+              color: '#eaeaf2', caretColor: chosen.color,
+            }}
+            onFocus={(e) => (e.currentTarget.style.borderColor = chosen.color + '88')}
+            onBlur={(e)  => (e.currentTarget.style.borderColor = '#282835')}
+          />
+        </div>
+
+        {/* Short label */}
+        <div className="space-y-1.5">
+          <label className="text-[11px] font-medium uppercase tracking-wider" style={{ color: '#56566e' }}>
+            Rövid jelölő (max 3 karakter)
+          </label>
+          <input
+            value={label}
+            onChange={(e) => setLabel(e.target.value.toUpperCase().slice(0, 3))}
+            placeholder="pl. CS2"
+            className="w-full rounded-lg px-3 py-2 text-[13px] outline-none"
+            style={{
+              background: '#1e1e2a', border: '1px solid #282835',
+              color: '#eaeaf2', caretColor: chosen.color,
+            }}
+            onFocus={(e) => (e.currentTarget.style.borderColor = chosen.color + '88')}
+            onBlur={(e)  => (e.currentTarget.style.borderColor = '#282835')}
+          />
+        </div>
+
+        {/* Color */}
+        <div className="space-y-2">
+          <label className="text-[11px] font-medium uppercase tracking-wider" style={{ color: '#56566e' }}>
+            Szín
+          </label>
+          <div className="flex flex-wrap gap-2">
+            {GROUP_COLORS.map((c, i) => (
+              <button
+                key={c.label}
+                title={c.label}
+                onClick={() => setColorIdx(i)}
+                className="w-7 h-7 rounded-full transition-transform hover:scale-110"
+                style={{
+                  background: `radial-gradient(circle at 38% 32%, ${c.bgFrom}, ${c.bgTo})`,
+                  boxShadow: i === colorIdx ? `0 0 0 2px ${c.color}, 0 0 8px ${c.color}66` : 'none',
+                }}
+              />
+            ))}
+          </div>
+        </div>
+
+        {/* Buttons */}
+        <div className="flex gap-2 pt-1">
+          <button
+            className="flex-1 py-2 rounded-lg text-[13px] font-medium transition-colors"
+            style={{ background: '#1e1e2a', color: '#8888a8', border: '1px solid #282835' }}
+            onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = '#282835' }}
+            onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = '#1e1e2a' }}
+            onClick={onClose}
+          >
+            Mégse
+          </button>
+          <button
+            className="flex-1 py-2 rounded-lg text-[13px] font-bold transition-opacity"
+            style={{
+              background: `linear-gradient(135deg, ${chosen.bgFrom}, ${chosen.bgTo})`,
+              color: '#fff',
+              opacity: name.trim() ? 1 : 0.4,
+              cursor: name.trim() ? 'pointer' : 'not-allowed',
+            }}
+            onClick={handleSave}
+          >
+            Létrehozás
+          </button>
         </div>
       </div>
     </div>
+  )
+}
+
+/* ─────────────────────────────────────────────
+   KEZDŐOLDAL
+───────────────────────────────────────────── */
+function HomeTab() {
+  const [activeGame, setActiveGame]   = useState('cs2')
+  const [tabs, setTabs]               = useState(initialGameTabs)
+  const [showAddGroup, setShowAddGroup] = useState(false)
+
+  const handleAddGroup = (tab: GameTab) => {
+    setTabs((prev) => [...prev, tab])
+    setActiveGame(tab.id)
+  }
+
+  return (
+    <>
+      {showAddGroup && (
+        <AddGroupModal
+          onClose={() => setShowAddGroup(false)}
+          onAdd={handleAddGroup}
+        />
+      )}
+      <div className="space-y-6">
+        <GameTabBar
+          activeGame={activeGame}
+          onSelect={setActiveGame}
+          tabs={tabs}
+          onAdd={() => setShowAddGroup(true)}
+        />
+        <div className="grid gap-4" style={{ gridTemplateColumns: '1fr 1fr 300px' }}>
+          <div className="col-span-2 space-y-4">
+            {posts.map((post) => (
+              <PostCard key={post.id} post={post} />
+            ))}
+          </div>
+          <div className="space-y-4">
+            <StatsPanel />
+            <ActivityFeed />
+          </div>
+        </div>
+      </div>
+    </>
   )
 }
 
