@@ -14,6 +14,7 @@ import {
 
 interface MainContentProps {
   activeTab: NavTab
+  steamId: string
 }
 
 /* ─────────────────────────────────────────────
@@ -184,7 +185,7 @@ function AddGroupModal({ onClose, onAdd }: { onClose: () => void; onAdd: (tab: G
 /* ─────────────────────────────────────────────
    KEZDŐOLDAL
 ───────────────────────────────────────────── */
-function HomeTab() {
+function HomeTab({ steamId }: { steamId: string }) {
   const [activeGame, setActiveGame]   = useState('cs2')
   const [tabs, setTabs]               = useState(initialGameTabs)
   const [showAddGroup, setShowAddGroup] = useState(false)
@@ -216,7 +217,7 @@ function HomeTab() {
             ))}
           </div>
           <div className="space-y-4">
-            <StatsPanel />
+            <StatsPanel steamId={steamId} />
             <ActivityFeed />
           </div>
         </div>
@@ -825,14 +826,14 @@ function GamesTab() {
 /* ─────────────────────────────────────────────
    MAIN
 ───────────────────────────────────────────── */
-export function MainContent({ activeTab }: MainContentProps) {
+export function MainContent({ activeTab, steamId }: MainContentProps) {
   return (
     <main className="flex-1 overflow-y-auto" style={{ background: '#0c0c11', padding: '28px 32px' }}>
       <div className="flex items-center gap-2.5 mb-6">
         <h1 className="text-[17px] font-semibold" style={{ color: '#e4e4ef' }}>{activeTab}</h1>
       </div>
 
-      {activeTab === 'Kezdőoldal' && <HomeTab />}
+      {activeTab === 'Kezdőoldal' && <HomeTab steamId={steamId} />}
       {activeTab === 'Stats'      && <StatsTab />}
       {activeTab === 'Hírek'      && <NewsTab />}
       {activeTab === 'Profil'     && <ProfileTab />}

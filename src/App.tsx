@@ -19,7 +19,7 @@ export default function App() {
       <Header activeTab={activeTab} onTabChange={setActiveTab} user={user} onLogout={logout} />
       <div className="flex flex-1 overflow-hidden">
         <Sidebar />
-        <MainContent activeTab={activeTab} />
+        <MainContent activeTab={activeTab} steamId={user.steamId} />
       </div>
     </div>
   )
