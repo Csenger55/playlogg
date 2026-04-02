@@ -82,6 +82,7 @@ export const posts: Post[] = [
     title: 'Ranked meccs — B rangsor',
     description: 'Premier 1420 Elo — 3-0 sorozat',
     isLive: true,
+    kickChannel: 'suri',
     stat: '1.84 K/D',
     timestamp: '2 perce',
   },

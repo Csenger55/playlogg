@@ -30,4 +30,5 @@ export interface Post {
   isLive?: boolean
   stat?: string
   timestamp: string
+  kickChannel?: string
 }

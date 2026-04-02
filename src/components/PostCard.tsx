@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { Play, Pause, Volume2, VolumeX, Maximize2 } from 'lucide-react'
+import { Play, Pause, Volume2, VolumeX, Maximize2, ExternalLink } from 'lucide-react'
 import type { Post } from '../types'
 
 interface PostCardProps {
@@ -43,14 +43,16 @@ export function PostCard({ post }: PostCardProps) {
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const DURATION = 7200
 
+  const hasKick = !!post.kickChannel
+
   useEffect(() => {
-    if (isPlaying) {
+    if (!hasKick && isPlaying) {
       intervalRef.current = setInterval(() => setElapsed((p) => Math.min(p + 1, DURATION)), 1000)
     } else {
       if (intervalRef.current) clearInterval(intervalRef.current)
     }
     return () => { if (intervalRef.current) clearInterval(intervalRef.current) }
-  }, [isPlaying])
+  }, [isPlaying, hasKick])
 
   const togglePlay = (e: React.MouseEvent) => {
     e.stopPropagation()
@@ -67,6 +69,11 @@ export function PostCard({ post }: PostCardProps) {
 
   const progressPct = (elapsed / DURATION) * 100
   const showControls = isPlaying || hovered
+
+  /* ── Kick embed URL ── */
+  const kickEmbedSrc = post.kickChannel
+    ? `https://player.kick.com/${post.kickChannel}?autoplay=true&muted=${isMuted ? 1 : 0}`
+    : null
 
   return (
     <div
@@ -85,73 +92,84 @@ export function PostCard({ post }: PostCardProps) {
         ;(e.currentTarget as HTMLDivElement).style.borderColor = '#1e1e2c'
       }}
     >
-      {/* Thumbnail */}
+      {/* Video / Thumbnail area */}
       <div
-        className="relative cursor-pointer overflow-hidden"
-        style={{ paddingBottom: '52%' }}
-        onClick={togglePlay}
+        className="relative overflow-hidden"
+        style={{ paddingBottom: hasKick && isPlaying ? '56.25%' : '52%' }}
+        onClick={!hasKick ? togglePlay : undefined}
       >
         <div className="absolute inset-0">
-          <Thumbnail color={post.gameColor} isPlaying={isPlaying} />
 
-          {/* Play/Pause button — shows on hover or always when paused */}
-          <div
-            className="absolute inset-0 flex items-center justify-center"
-            style={{ opacity: showControls || !isPlaying ? 1 : 0, transition: 'opacity 0.15s' }}
-          >
-            <div
-              className="w-12 h-12 rounded-full flex items-center justify-center"
-              style={{
-                background: 'rgba(0,0,0,0.55)',
-                border: '1.5px solid rgba(255,255,255,0.18)',
-                opacity: isPlaying && !hovered ? 0 : 1,
-                transition: 'opacity 0.15s',
-              }}
-            >
-              {isPlaying
-                ? <Pause size={18} fill="white" className="text-white" />
-                : <Play  size={18} fill="white" className="text-white ml-0.5" />
-              }
-            </div>
-          </div>
+          {/* ── Kick live embed (when playing) ── */}
+          {hasKick && isPlaying ? (
+            <iframe
+              src={kickEmbedSrc!}
+              allow="autoplay; fullscreen"
+              allowFullScreen
+              className="absolute inset-0 w-full h-full"
+              style={{ border: 'none' }}
+            />
+          ) : (
+            /* ── CSS thumbnail (paused / no Kick) ── */
+            <>
+              <Thumbnail color={post.gameColor} isPlaying={false} />
 
-          {/* Top badges */}
-          <div className="absolute top-0 left-0 right-0 flex items-start justify-between p-3">
-            {post.isLive ? (
-              <div className="flex items-center gap-1.5 px-2 py-0.5 rounded"
-                style={{ background: '#e83c3c', color: '#fff' }}>
-                <span className="w-1.5 h-1.5 rounded-full bg-white" />
-                <span className="text-[10px] font-bold uppercase tracking-wider">Élő</span>
-              </div>
-            ) : <div />}
-            <div
-              className="px-2 py-0.5 rounded text-[10px] font-semibold"
-              style={{ background: 'rgba(0,0,0,0.6)', color: '#c8c8dc' }}
-            >
-              {post.game}
-            </div>
-          </div>
-
-          {/* Stat badge bottom-right */}
-          {post.stat && (
-            <div className="absolute bottom-3 right-3">
-              <span
-                className="text-[11px] font-bold px-2 py-0.5 rounded"
-                style={{ background: 'rgba(0,0,0,0.65)', color: post.gameColor }}
-              >
-                {post.stat}
-              </span>
-            </div>
-          )}
-
-          {/* Progress bar */}
-          {isPlaying && (
-            <div className="absolute bottom-0 left-0 right-0 h-0.5" style={{ background: 'rgba(255,255,255,0.1)' }}>
+              {/* Play button overlay */}
               <div
-                className="h-full"
-                style={{ width: `${progressPct}%`, background: post.gameColor, transition: 'width 1s linear' }}
-              />
-            </div>
+                className="absolute inset-0 flex items-center justify-center cursor-pointer"
+                onClick={togglePlay}
+                style={{ opacity: showControls || !isPlaying ? 1 : 0, transition: 'opacity 0.15s' }}
+              >
+                <div
+                  className="w-12 h-12 rounded-full flex items-center justify-center"
+                  style={{
+                    background: 'rgba(0,0,0,0.55)',
+                    border: '1.5px solid rgba(255,255,255,0.18)',
+                  }}
+                >
+                  <Play size={18} fill="white" className="text-white ml-0.5" />
+                </div>
+              </div>
+
+              {/* Top badges */}
+              <div className="absolute top-0 left-0 right-0 flex items-start justify-between p-3 pointer-events-none">
+                {post.isLive ? (
+                  <div className="flex items-center gap-1.5 px-2 py-0.5 rounded"
+                    style={{ background: '#e83c3c', color: '#fff' }}>
+                    <span className="w-1.5 h-1.5 rounded-full bg-white" />
+                    <span className="text-[10px] font-bold uppercase tracking-wider">Élő</span>
+                  </div>
+                ) : <div />}
+                <div
+                  className="px-2 py-0.5 rounded text-[10px] font-semibold"
+                  style={{ background: 'rgba(0,0,0,0.6)', color: '#c8c8dc' }}
+                >
+                  {post.game}
+                </div>
+              </div>
+
+              {/* Stat badge */}
+              {post.stat && (
+                <div className="absolute bottom-3 right-3 pointer-events-none">
+                  <span
+                    className="text-[11px] font-bold px-2 py-0.5 rounded"
+                    style={{ background: 'rgba(0,0,0,0.65)', color: post.gameColor }}
+                  >
+                    {post.stat}
+                  </span>
+                </div>
+              )}
+
+              {/* Progress bar (simulated) */}
+              {!hasKick && isPlaying && (
+                <div className="absolute bottom-0 left-0 right-0 h-0.5" style={{ background: 'rgba(255,255,255,0.1)' }}>
+                  <div
+                    className="h-full"
+                    style={{ width: `${progressPct}%`, background: post.gameColor, transition: 'width 1s linear' }}
+                  />
+                </div>
+              )}
+            </>
           )}
         </div>
       </div>
@@ -172,15 +190,17 @@ export function PostCard({ post }: PostCardProps) {
           </div>
         </div>
 
-        {/* Controls (when playing) */}
+        {/* Controls */}
         {isPlaying && (
           <div
             className="flex items-center gap-1 flex-shrink-0 mt-0.5"
             onClick={(e) => e.stopPropagation()}
           >
-            <span className="text-[10px] tabular-nums mr-1" style={{ color: '#52526a' }}>
-              {formatTime(elapsed)}
-            </span>
+            {!hasKick && (
+              <span className="text-[10px] tabular-nums mr-1" style={{ color: '#52526a' }}>
+                {formatTime(elapsed)}
+              </span>
+            )}
             <button
               className="w-6 h-6 flex items-center justify-center rounded transition-colors"
               style={{ color: '#52526a' }}
@@ -199,14 +219,29 @@ export function PostCard({ post }: PostCardProps) {
             >
               <Pause size={13} />
             </button>
-            <button
-              className="w-6 h-6 flex items-center justify-center rounded transition-colors"
-              style={{ color: '#52526a' }}
-              onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.color = '#8a8aa0')}
-              onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.color = '#52526a')}
-            >
-              <Maximize2 size={12} />
-            </button>
+            {hasKick && (
+              <a
+                href={`https://kick.com/${post.kickChannel}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-6 h-6 flex items-center justify-center rounded transition-colors"
+                style={{ color: '#52526a' }}
+                onMouseEnter={(e) => ((e.currentTarget as HTMLAnchorElement).style.color = '#8a8aa0')}
+                onMouseLeave={(e) => ((e.currentTarget as HTMLAnchorElement).style.color = '#52526a')}
+              >
+                <ExternalLink size={12} />
+              </a>
+            )}
+            {!hasKick && (
+              <button
+                className="w-6 h-6 flex items-center justify-center rounded transition-colors"
+                style={{ color: '#52526a' }}
+                onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.color = '#8a8aa0')}
+                onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.color = '#52526a')}
+              >
+                <Maximize2 size={12} />
+              </button>
+            )}
           </div>
         )}
       </div>

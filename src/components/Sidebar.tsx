@@ -1,6 +1,76 @@
-import { Search, CheckCircle2, Square, Minus, PauseCircle, UserPlus } from 'lucide-react'
+import { useState } from 'react'
+import { Search, CheckCircle2, Square, Minus, PauseCircle, UserPlus, X } from 'lucide-react'
 import type { Friend } from '../types'
 import { friends } from '../data/mockData'
+
+function AddFriendModal({ onClose }: { onClose: () => void }) {
+  const [value, setValue] = useState('')
+  const [sent, setSent]   = useState(false)
+
+  const handleSend = () => {
+    if (!value.trim()) return
+    setSent(true)
+    setTimeout(onClose, 1200)
+  }
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center"
+      style={{ background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(6px)' }}
+      onClick={onClose}
+    >
+      <div
+        className="w-[380px] rounded-xl p-6 space-y-4"
+        style={{ background: '#15151d', border: '1px solid #27273a', boxShadow: '0 24px 64px rgba(0,0,0,0.7)' }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between">
+          <span className="text-[15px] font-bold" style={{ color: '#e4e4ef' }}>Barát hozzáadása</span>
+          <button
+            className="w-7 h-7 rounded-lg flex items-center justify-center"
+            style={{ background: '#1e1e2c', color: '#52526a' }}
+            onClick={onClose}
+          >
+            <X size={14} />
+          </button>
+        </div>
+
+        <p className="text-[12px]" style={{ color: '#52526a' }}>
+          Add meg a felhasználónevet akit meg szeretnél találni.
+        </p>
+
+        <input
+          autoFocus
+          type="text"
+          placeholder="Felhasználónév"
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+          onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+          className="w-full px-3 py-2 rounded-md text-[13px] outline-none"
+          style={{
+            background: '#1a1a26',
+            border: '1px solid #27273a',
+            color: '#e4e4ef',
+          }}
+        />
+
+        <button
+          onClick={handleSend}
+          disabled={!value.trim() || sent}
+          className="w-full py-2 rounded-md text-[13px] font-semibold transition-colors"
+          style={{
+            background: sent ? '#1a1a26' : '#f55500',
+            color: sent ? '#1ed760' : '#fff',
+            opacity: !value.trim() ? 0.4 : 1,
+            cursor: !value.trim() ? 'not-allowed' : 'pointer',
+          }}
+        >
+          {sent ? 'Kérés elküldve!' : 'Barát kérés küldése'}
+        </button>
+      </div>
+    </div>
+  )
+}
 
 function Avatar({ friend }: { friend: Friend }) {
   const [from] = friend.avatarGradient
@@ -65,6 +135,7 @@ function SectionLabel({ label, count }: { label: string; count: number }) {
 }
 
 export function Sidebar() {
+  const [showModal, setShowModal] = useState(false)
   const online  = friends.filter((f) => f.isOnline)
   const offline = friends.filter((f) => !f.isOnline)
 
@@ -73,6 +144,7 @@ export function Sidebar() {
       className="flex flex-col flex-shrink-0 overflow-hidden"
       style={{ width: '248px', background: '#111119', borderRight: '1px solid #1e1e2c' }}
     >
+      {showModal && <AddFriendModal onClose={() => setShowModal(false)} />}
       {/* Search */}
       <div className="px-3 pt-4 pb-2">
         <div
@@ -110,6 +182,7 @@ export function Sidebar() {
         <button
           className="w-full flex items-center gap-2 px-3 py-2 rounded-md text-[12px] font-medium transition-colors"
           style={{ color: '#52526a', background: 'transparent' }}
+          onClick={() => setShowModal(true)}
           onMouseEnter={(e) => {
             (e.currentTarget as HTMLButtonElement).style.background = '#16161f'
             ;(e.currentTarget as HTMLButtonElement).style.color = '#8a8aa0'
