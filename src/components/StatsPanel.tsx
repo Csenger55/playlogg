@@ -1,104 +1,74 @@
-import { TrendingUp, TrendingDown, Minus } from 'lucide-react'
+import { TrendingUp, TrendingDown, Minus, ArrowRight } from 'lucide-react'
 
 interface StatRow {
   label: string
   value: string
   trend: 'up' | 'down' | 'neutral'
+  bar?: number  // 0–100
 }
 
 const stats: StatRow[] = [
-  { label: 'K/D arány',        value: '1.84',  trend: 'up' },
-  { label: 'Győzelmi arány',   value: '62%',   trend: 'up' },
-  { label: 'Pontszám/meccs',   value: '78.4',  trend: 'down' },
-  { label: 'Meccsek száma',    value: '124',   trend: 'neutral' },
-  { label: 'Headshot arány',   value: '41%',   trend: 'up' },
+  { label: 'K/D arány',       value: '1.84', trend: 'up',      bar: 72 },
+  { label: 'Győzelmi arány',  value: '62%',  trend: 'up',      bar: 62 },
+  { label: 'Pont / meccs',    value: '78.4', trend: 'down',    bar: 48 },
+  { label: 'Meccsek',         value: '124',  trend: 'neutral', bar: 55 },
+  { label: 'Headshot %',      value: '41%',  trend: 'up',      bar: 41 },
 ]
 
-const trendColors = {
-  up:      '#22c55e',
-  down:    '#ef4444',
-  neutral: '#56566e',
-}
-
-const TrendIcon = ({ trend }: { trend: StatRow['trend'] }) => {
-  const size = 11
-  const color = trendColors[trend]
-  if (trend === 'up')      return <TrendingUp size={size} style={{ color }} />
-  if (trend === 'down')    return <TrendingDown size={size} style={{ color }} />
-  return <Minus size={size} style={{ color }} />
-}
+const trendColor = { up: '#1ed760', down: '#e83c3c', neutral: '#52526a' }
 
 export function StatsPanel() {
   return (
-    <div
-      className="w-full rounded-xl overflow-hidden"
-      style={{
-        background: '#141419',
-        border: '1px solid #1e1e2a',
-        boxShadow: '0 4px 24px rgba(0,0,0,0.4)',
-      }}
-    >
+    <div className="rounded-lg overflow-hidden" style={{ background: '#15151d', border: '1px solid #1e1e2c' }}>
       {/* Header */}
-      <div
-        className="px-4 py-3 flex items-center justify-between"
-        style={{ borderBottom: '1px solid #1e1e2a' }}
-      >
-        <span className="text-[13px] font-semibold" style={{ color: '#d8d8e8' }}>
-          Legutóbbi meccsek
-        </span>
-        <span
-          className="text-[11px] font-medium px-2 py-0.5 rounded-full"
-          style={{
-            background: '#ff6b0015',
-            color: '#ff6b00',
-            border: '1px solid #ff6b0030',
-          }}
-        >
+      <div className="px-4 py-3 flex items-center justify-between" style={{ borderBottom: '1px solid #1e1e2c' }}>
+        <span className="text-[13px] font-semibold" style={{ color: '#c8c8dc' }}>Statisztikák</span>
+        <span className="text-[10px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded"
+          style={{ background: '#f5550018', color: '#f55500', border: '1px solid #f5550030' }}>
           CS2
         </span>
       </div>
 
       {/* Stats */}
-      <div className="px-4 py-3 space-y-3">
-        {stats.map((stat) => (
-          <div key={stat.label} className="flex items-center justify-between">
-            <span className="text-[12px]" style={{ color: '#56566e' }}>
-              {stat.label}
-            </span>
-            <div className="flex items-center gap-1.5">
-              <TrendIcon trend={stat.trend} />
-              <span
-                className="text-[12px] font-bold tabular-nums"
-                style={{ color: trendColors[stat.trend] }}
-              >
-                {stat.value}
-              </span>
+      <div className="px-4 py-3 space-y-3.5">
+        {stats.map((s) => (
+          <div key={s.label}>
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-[12px]" style={{ color: '#52526a' }}>{s.label}</span>
+              <div className="flex items-center gap-1">
+                {s.trend === 'up'      && <TrendingUp   size={10} style={{ color: trendColor.up }} />}
+                {s.trend === 'down'    && <TrendingDown size={10} style={{ color: trendColor.down }} />}
+                {s.trend === 'neutral' && <Minus        size={10} style={{ color: trendColor.neutral }} />}
+                <span className="text-[12px] font-semibold tabular-nums" style={{ color: '#c8c8dc' }}>
+                  {s.value}
+                </span>
+              </div>
             </div>
+            {s.bar !== undefined && (
+              <div className="h-0.5 rounded-full overflow-hidden" style={{ background: '#1e1e2c' }}>
+                <div
+                  className="h-full rounded-full"
+                  style={{
+                    width: `${s.bar}%`,
+                    background: trendColor[s.trend],
+                    opacity: 0.6,
+                  }}
+                />
+              </div>
+            )}
           </div>
         ))}
       </div>
 
-      {/* Footer CTA */}
-      <div className="px-4 py-3" style={{ borderTop: '1px solid #1e1e2a' }}>
+      {/* Footer */}
+      <div className="px-4 pb-3">
         <button
-          className="w-full text-[12px] font-medium py-2 rounded-lg transition-colors duration-150"
-          style={{
-            background: '#1e1e2a',
-            color: '#8888a8',
-            border: '1px solid #282835',
-          }}
-          onMouseEnter={(e) => {
-            const el = e.currentTarget as HTMLButtonElement
-            el.style.background = '#282835'
-            el.style.color = '#eaeaf2'
-          }}
-          onMouseLeave={(e) => {
-            const el = e.currentTarget as HTMLButtonElement
-            el.style.background = '#1e1e2a'
-            el.style.color = '#8888a8'
-          }}
+          className="flex items-center gap-1 text-[12px] font-medium transition-colors"
+          style={{ color: '#3e3e56' }}
+          onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.color = '#8a8aa0')}
+          onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.color = '#3e3e56')}
         >
-          Összes stat megtekintése →
+          Összes megtekintése <ArrowRight size={12} />
         </button>
       </div>
     </div>

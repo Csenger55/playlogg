@@ -8,10 +8,7 @@ export default function App() {
   const [activeTab, setActiveTab] = useState<NavTab>('Kezdőoldal')
 
   return (
-    <div
-      className="flex flex-col"
-      style={{ height: '100vh', background: '#08080c', overflow: 'hidden' }}
-    >
+    <div className="flex flex-col" style={{ height: '100vh', background: '#0c0c11', overflow: 'hidden' }}>
       <Header activeTab={activeTab} onTabChange={setActiveTab} />
       <div className="flex flex-1 overflow-hidden">
         <Sidebar />
