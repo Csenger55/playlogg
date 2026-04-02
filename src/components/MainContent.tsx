@@ -627,7 +627,7 @@ function ProfileTab() {
 /* ─────────────────────────────────────────────
    GAMES
 ───────────────────────────────────────────── */
-// Steam CDN header images for known games
+// Steam CDN header images — only for games confirmed to be on Steam
 const GAME_HEADERS: Record<string, string> = {
   'Counter-Strike 2':   'https://cdn.cloudflare.steamstatic.com/steam/apps/730/header.jpg',
   'Apex Legends':       'https://cdn.cloudflare.steamstatic.com/steam/apps/1172470/header.jpg',
@@ -637,12 +637,13 @@ const GAME_HEADERS: Record<string, string> = {
   'Warframe':           'https://cdn.cloudflare.steamstatic.com/steam/apps/230410/header.jpg',
   'Destiny 2':          'https://cdn.cloudflare.steamstatic.com/steam/apps/1085660/header.jpg',
   'PUBG':               'https://cdn.cloudflare.steamstatic.com/steam/apps/578080/header.jpg',
-  'Valorant':           'https://cdn.cloudflare.steamstatic.com/steam/apps/2182900/header.jpg',
-  'World of Warcraft':  'https://bnetcmsus-a.akamaihd.net/cms/blog_thumbnail/d/D8PVFLZGCD6X1509744478682.jpg',
-  'League of Legends':  'https://cdn.cloudflare.steamstatic.com/steam/apps/2633200/header.jpg',
-  'Fortnite':           'https://cdn2.unrealengine.com/social-image-chapter4-s3-3840x2160-d35912cc25ad.jpg',
-  'Overwatch 2':        'https://blz-contentstack-images.akamaized.net/v3/assets/blt9c12f249ac15c7ec/blt12139acb7b1f08a5/62e6032083c6600d4a28a6a9/OW2_LOGO_NEW_GENERIC.png',
-  'Escape from Tarkov': 'https://cdn.cloudflare.steamstatic.com/steam/apps/1426460/header.jpg',
+  // Non-Steam games — Wikipedia Commons (stable, public)
+  'Valorant':           'https://upload.wikimedia.org/wikipedia/en/b/ba/Valorant_cover.jpg',
+  'World of Warcraft':  'https://upload.wikimedia.org/wikipedia/en/6/65/World_of_Warcraft.png',
+  'League of Legends':  'https://upload.wikimedia.org/wikipedia/en/1/13/League_of_Legends.jpg',
+  'Fortnite':           'https://upload.wikimedia.org/wikipedia/en/thumb/9/93/Fortnite_Battle_Royale_Season_8_cover_art.jpg/250px-Fortnite_Battle_Royale_Season_8_cover_art.jpg',
+  'Overwatch 2':        'https://upload.wikimedia.org/wikipedia/en/a/a5/Overwatch_2_cover_art.jpg',
+  'Escape from Tarkov': 'https://upload.wikimedia.org/wikipedia/en/f/f8/Escape_from_Tarkov_cover_art.jpg',
 }
 
 function GameCard({ name, hours, rank, color, abbr }: {
