@@ -627,9 +627,30 @@ function ProfileTab() {
 /* ─────────────────────────────────────────────
    GAMES
 ───────────────────────────────────────────── */
+// Steam CDN header images for known games
+const GAME_HEADERS: Record<string, string> = {
+  'Counter-Strike 2':   'https://cdn.cloudflare.steamstatic.com/steam/apps/730/header.jpg',
+  'Apex Legends':       'https://cdn.cloudflare.steamstatic.com/steam/apps/1172470/header.jpg',
+  'Dota 2':             'https://cdn.cloudflare.steamstatic.com/steam/apps/570/header.jpg',
+  'Rainbow Six Siege':  'https://cdn.cloudflare.steamstatic.com/steam/apps/359550/header.jpg',
+  'Rust':               'https://cdn.cloudflare.steamstatic.com/steam/apps/252490/header.jpg',
+  'Warframe':           'https://cdn.cloudflare.steamstatic.com/steam/apps/230410/header.jpg',
+  'Destiny 2':          'https://cdn.cloudflare.steamstatic.com/steam/apps/1085660/header.jpg',
+  'PUBG':               'https://cdn.cloudflare.steamstatic.com/steam/apps/578080/header.jpg',
+  'Valorant':           'https://cdn.cloudflare.steamstatic.com/steam/apps/2182900/header.jpg',
+  'World of Warcraft':  'https://bnetcmsus-a.akamaihd.net/cms/blog_thumbnail/d/D8PVFLZGCD6X1509744478682.jpg',
+  'League of Legends':  'https://cdn.cloudflare.steamstatic.com/steam/apps/2633200/header.jpg',
+  'Fortnite':           'https://cdn2.unrealengine.com/social-image-chapter4-s3-3840x2160-d35912cc25ad.jpg',
+  'Overwatch 2':        'https://blz-contentstack-images.akamaized.net/v3/assets/blt9c12f249ac15c7ec/blt12139acb7b1f08a5/62e6032083c6600d4a28a6a9/OW2_LOGO_NEW_GENERIC.png',
+  'Escape from Tarkov': 'https://cdn.cloudflare.steamstatic.com/steam/apps/1426460/header.jpg',
+}
+
 function GameCard({ name, hours, rank, color, abbr }: {
   name: string; hours: string; rank: string; color: string; abbr: string
 }) {
+  const [imgFailed, setImgFailed] = useState(false)
+  const headerUrl = GAME_HEADERS[name]
+
   return (
     <div className="rounded-lg overflow-hidden cursor-pointer group"
       style={{ background: '#15151d', border: '1px solid #1e1e2c', transition: 'border-color 0.2s' }}
@@ -637,7 +658,20 @@ function GameCard({ name, hours, rank, color, abbr }: {
       onMouseLeave={e => (e.currentTarget.style.borderColor = '#1e1e2c')}>
       <div className="h-24 flex items-center justify-center relative overflow-hidden"
         style={{ background: `radial-gradient(ellipse at 50% 50%, ${color}22 0%, #0a0a0f 70%)` }}>
-        <span className="text-3xl font-black" style={{ color: `${color}cc` }}>{abbr}</span>
+        {headerUrl && !imgFailed ? (
+          <>
+            <img
+              src={headerUrl}
+              alt={name}
+              onError={() => setImgFailed(true)}
+              className="absolute inset-0 w-full h-full object-cover"
+              style={{ opacity: 0.85 }}
+            />
+            <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, #15151d 0%, transparent 60%)' }} />
+          </>
+        ) : (
+          <span className="text-3xl font-black" style={{ color: `${color}cc` }}>{abbr}</span>
+        )}
       </div>
       <div className="px-3 py-3">
         <p className="text-[13px] font-semibold truncate" style={{ color: '#c8c8dc' }}>{name}</p>
